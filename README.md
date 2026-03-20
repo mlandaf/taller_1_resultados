@@ -4,7 +4,7 @@
 **Universidad de Lima — Laboratorio de Neurociencias Aplicadas**  
 **Ciclo:** 2026-1
 
-**🔗 Aplicación:** [marcelolanda.github.io/taller_1_resultados](https://marcelolanda.github.io/taller_1_resultados)
+**🔗 Aplicación:** [mlandaf.github.io/taller_1_resultados](https://mlandaf.github.io/taller_1_resultados)
 
 ---
 
@@ -43,7 +43,7 @@ No requiere instalar ningún software. Funciona directamente en el navegador.
 
 Los archivos del experimento (condiciones, estímulos y `.psyexp`) están disponibles en el repositorio principal:
 
-**🔗 [github.com/marcelolanda/taller_1_emociones](https://github.com/marcelolanda/taller_1_emociones)**
+**🔗 [github.com/mlandaf/taller_1_emociones](https://github.com/mlandaf/taller_1_emociones)**
 
 ---
 
