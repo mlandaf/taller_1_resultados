@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resultados — Categorización Emocional</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --orange: #FF3A00;
+    --black: #0D0D0D;
+    --white: #F8F6F1;
+    --gray: #E8E4DC;
+    --mid: #9A9590;
+    --alegria: #E8A020;
+    --tristeza: #3A7FBF;
+    --ira: #C02828;
+    --miedo: #7340A8;
+    --card-bg: #FFFFFF;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--white);
+    color: var(--black);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--black);
+    padding: 28px 48px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    border-bottom: 3px solid var(--orange);
+  }
+  .header-accent {
+    width: 6px;
+    height: 40px;
+    background: var(--orange);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.5rem;
+    color: var(--white);
+    letter-spacing: -0.01em;
+  }
+  header p {
+    font-size: 0.78rem;
+    color: var(--mid);
+    margin-top: 2px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  /* ── MAIN ── */
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 52px 24px 80px;
+  }
+
+  /* ── UPLOAD ZONE ── */
+  #upload-section { text-align: center; }
+
+  .upload-label {
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mid);
+    display: block;
+    margin-bottom: 20px;
+  }
+
+  .drop-zone {
+    border: 2px dashed #C8C4BC;
+    border-radius: 12px;
+    padding: 64px 40px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: var(--card-bg);
+    position: relative;
+  }
+  .drop-zone:hover, .drop-zone.drag-over {
+    border-color: var(--orange);
+    background: #FFF8F6;
+  }
+  .drop-zone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+  }
+  .drop-icon {
+    font-size: 2.5rem;
+    margin-bottom: 16px;
+    display: block;
+  }
+  .drop-zone h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem;
+    margin-bottom: 8px;
+    color: var(--black);
+  }
+  .drop-zone p {
+    font-size: 0.88rem;
+    color: var(--mid);
+  }
+  .drop-zone .file-types {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 6px 14px;
+    background: var(--gray);
+    border-radius: 20px;
+    font-size: 0.75rem;
+    color: var(--mid);
+    letter-spacing: 0.05em;
+  }
+
+  /* ── ERROR ── */
+  #error-msg {
+    display: none;
+    background: #FFF0EE;
+    border: 1px solid #FFBDB3;
+    border-radius: 8px;
+    padding: 14px 20px;
+    margin-top: 20px;
+    color: #C02828;
+    font-size: 0.88rem;
+  }
+
+  /* ── RESULTS ── */
+  #results { display: none; }
+
+  .results-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 40px;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .results-title h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2rem;
+    line-height: 1.1;
+  }
+  .results-title .participant-meta {
+    font-size: 0.8rem;
+    color: var(--mid);
+    margin-top: 6px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .reset-btn {
+    padding: 10px 20px;
+    background: transparent;
+    border: 1.5px solid var(--black);
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 6px;
+  }
+  .reset-btn:hover {
+    background: var(--black);
+    color: var(--white);
+  }
+
+  /* ── SUMMARY CARDS ── */
+  .summary-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+  .summary-card {
+    background: var(--card-bg);
+    border: 1px solid var(--gray);
+    border-radius: 10px;
+    padding: 24px 20px;
+  }
+  .summary-card .s-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--mid);
+    margin-bottom: 8px;
+  }
+  .summary-card .s-value {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.2rem;
+    color: var(--black);
+    line-height: 1;
+  }
+  .summary-card .s-sub {
+    font-size: 0.78rem;
+    color: var(--mid);
+    margin-top: 4px;
+  }
+  .summary-card.highlight {
+    background: var(--black);
+    border-color: var(--black);
+  }
+  .summary-card.highlight .s-label { color: #888; }
+  .summary-card.highlight .s-value { color: var(--orange); }
+  .summary-card.highlight .s-sub   { color: #666; }
+
+  /* ── SECTION TITLE ── */
+  .section-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--gray);
+  }
+
+  /* ── EMOTION CARDS ── */
+  .emotion-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+  .emotion-card {
+    background: var(--card-bg);
+    border: 1px solid var(--gray);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .emotion-card-header {
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .emotion-name {
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--white);
+  }
+  .emotion-key {
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.65);
+    font-weight: 400;
+  }
+  .emotion-card-body {
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .metric {
+    text-align: center;
+  }
+  .metric-label {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--mid);
+    margin-bottom: 4px;
+  }
+  .metric-value {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.6rem;
+    color: var(--black);
+    line-height: 1;
+  }
+  .metric-sub {
+    font-size: 0.72rem;
+    color: var(--mid);
+    margin-top: 2px;
+  }
+
+  /* ── BAR CHARTS ── */
+  .charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 48px;
+  }
+  .chart-card {
+    background: var(--card-bg);
+    border: 1px solid var(--gray);
+    border-radius: 10px;
+    padding: 24px 20px;
+  }
+  .chart-title {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--mid);
+    margin-bottom: 20px;
+  }
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .bar-row:last-child { margin-bottom: 0; }
+  .bar-label {
+    font-size: 0.78rem;
+    font-weight: 500;
+    width: 68px;
+    flex-shrink: 0;
+    text-align: right;
+  }
+  .bar-track {
+    flex: 1;
+    height: 22px;
+    background: var(--gray);
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 0;
+  }
+  .bar-val {
+    font-size: 0.78rem;
+    font-weight: 600;
+    width: 52px;
+    flex-shrink: 0;
+  }
+
+  /* ── TRIAL TABLE ── */
+  .table-section { margin-bottom: 48px; }
+  .table-wrapper {
+    background: var(--card-bg);
+    border: 1px solid var(--gray);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.84rem;
+  }
+  thead th {
+    background: var(--black);
+    color: var(--orange);
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    font-weight: 500;
+  }
+  tbody tr {
+    border-bottom: 1px solid var(--gray);
+    transition: background 0.1s;
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: #FAFAF8; }
+  tbody td {
+    padding: 10px 16px;
+    color: var(--black);
+  }
+  .corr-yes {
+    display: inline-block;
+    padding: 2px 10px;
+    background: #E8F5E8;
+    color: #2A7A2A;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .corr-no {
+    display: inline-block;
+    padding: 2px 10px;
+    background: #FCEAEA;
+    color: #C02828;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .emotion-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: white;
+  }
+
+  /* ── FOOTER NOTE ── */
+  .footer-note {
+    text-align: center;
+    font-size: 0.78rem;
+    color: var(--mid);
+    padding-top: 24px;
+    border-top: 1px solid var(--gray);
+  }
+  .footer-note strong { color: var(--black); }
+
+  /* ── COLUMN SELECTOR ── */
+  .col-selector-box {
+    background: var(--card-bg);
+    border: 1px solid var(--gray);
+    border-radius: 12px;
+    padding: 36px 40px;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  .col-selector-desc {
+    font-size: 0.86rem;
+    color: var(--mid);
+    margin-bottom: 28px;
+    line-height: 1.5;
+  }
+  .col-fields { display: flex; flex-direction: column; gap: 18px; }
+  .col-field label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--black);
+  }
+  .col-hint {
+    font-weight: 400;
+    color: var(--mid);
+    font-size: 0.78rem;
+  }
+  .col-field select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--gray);
+    border-radius: 7px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.84rem;
+    background: var(--white);
+    color: var(--black);
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23999' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+  }
+  .col-field select:focus {
+    outline: none;
+    border-color: var(--orange);
+  }
+  .col-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 28px;
+  }
+  .process-btn {
+    padding: 10px 24px;
+    background: var(--orange);
+    border: none;
+    border-radius: 6px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: white;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .process-btn:hover { opacity: 0.88; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    header { padding: 20px 20px; }
+    main { padding: 32px 16px 60px; }
+    .summary-row { grid-template-columns: 1fr 1fr; }
+    .emotion-grid { grid-template-columns: 1fr; }
+    .charts-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-accent"></div>
+  <div>
+    <h1>Categorización de Expresiones Emocionales</h1>
+    <p>Investigación e Intervención desde las Neurociencias Aplicadas · 2026-1</p>
+  </div>
+</header>
+
+<main>
+
+  <!-- UPLOAD -->
+  <section id="upload-section">
+    <span class="upload-label">Cargar archivo de resultados</span>
+    <div class="drop-zone" id="drop-zone">
+      <input type="file" id="file-input" accept=".csv">
+      <span class="drop-icon">📂</span>
+      <h2>Arrastra tu archivo CSV aquí</h2>
+      <p>o haz clic para seleccionarlo desde tu computadora</p>
+      <span class="file-types">CSV · Generado por PsychoPy Builder</span>
+    </div>
+    <div id="error-msg"></div>
+  </section>
+
+  <!-- COLUMN SELECTOR -->
+  <section id="col-selector" style="display:none">
+    <div class="col-selector-box">
+      <div class="col-selector-header">
+        <span class="upload-label" style="margin-bottom:6px">Confirma las columnas de tu archivo</span>
+        <p class="col-selector-desc">PsychoPy genera columnas con nombres que dependen de cómo llamaste tus componentes. Selecciona cuál columna corresponde a cada variable.</p>
+      </div>
+      <div class="col-fields">
+        <div class="col-field">
+          <label>Respuesta correcta <span class="col-hint">(0 = incorrecto, 1 = correcto)</span></label>
+          <select id="sel-corr"></select>
+        </div>
+        <div class="col-field">
+          <label>Tiempo de reacción <span class="col-hint">(en segundos, PsychoPy lo convierte a ms)</span></label>
+          <select id="sel-rt"></select>
+        </div>
+        <div class="col-field">
+          <label>Emoción del estímulo <span class="col-hint">(alegria, tristeza, ira, miedo)</span></label>
+          <select id="sel-em"></select>
+        </div>
+      </div>
+      <div id="col-error" style="display:none;color:#C02828;font-size:0.84rem;margin-top:8px"></div>
+      <div class="col-actions">
+        <button class="reset-btn" onclick="resetApp()">← Volver</button>
+        <button class="process-btn" onclick="confirmColumns()">Procesar resultados →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESULTS -->
+  <section id="results">
+
+    <div class="results-header">
+      <div class="results-title">
+        <h2>Resultados del participante</h2>
+        <p class="participant-meta" id="participant-meta"></p>
+      </div>
+      <button class="reset-btn" onclick="resetApp()">← Cargar otro archivo</button>
+    </div>
+
+    <!-- SUMMARY -->
+    <div class="summary-row">
+      <div class="summary-card highlight">
+        <div class="s-label">Precisión global</div>
+        <div class="s-value" id="global-acc">—</div>
+        <div class="s-sub">% de respuestas correctas</div>
+      </div>
+      <div class="summary-card">
+        <div class="s-label">RT promedio</div>
+        <div class="s-value" id="global-rt">—</div>
+        <div class="s-sub">ms · solo trials correctos</div>
+      </div>
+      <div class="summary-card">
+        <div class="s-label">Trials procesados</div>
+        <div class="s-value" id="total-trials">—</div>
+        <div class="s-sub">ensayos experimentales</div>
+      </div>
+    </div>
+
+    <!-- EMOTION CARDS -->
+    <h3 class="section-title">Por emoción</h3>
+    <div class="emotion-grid" id="emotion-grid"></div>
+
+    <!-- CHARTS -->
+    <h3 class="section-title">Comparación visual</h3>
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-title">Precisión (% correcto)</div>
+        <div id="acc-chart"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Tiempo de reacción promedio (ms)</div>
+        <div id="rt-chart"></div>
+      </div>
+    </div>
+
+    <!-- TRIAL TABLE -->
+    <div class="table-section">
+      <h3 class="section-title">Tabla de trials</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Emoción</th>
+              <th>Tecla</th>
+              <th>Correcto</th>
+              <th>RT (ms)</th>
+            </tr>
+          </thead>
+          <tbody id="trial-table"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <p class="footer-note">
+      <strong>Nota.</strong> El RT se reporta en milisegundos. El promedio de RT se calcula únicamente sobre los trials correctos.<br>
+      Tarea basada en: Calvo, M. G., & Lundqvist, D. (2008). <em>Behavior Research Methods, 40</em>(1), 109–115.
+    </p>
+
+  </section>
+</main>
+
+<script>
+// ── COLORS ───────────────────────────────────────────────────────
+const EMOTION_COLORS = {
+  alegria:  '#E8A020',
+  tristeza: '#3A7FBF',
+  ira:      '#C02828',
+  miedo:    '#7340A8'
+};
+const EMOTION_LABELS = {
+  alegria:  'Alegría',
+  tristeza: 'Tristeza',
+  ira:      'Ira',
+  miedo:    'Miedo'
+};
+const EMOTION_KEYS = {
+  alegria:  'F',
+  tristeza: 'G',
+  ira:      'H',
+  miedo:    'J'
+};
+const EMOTION_ORDER = ['alegria', 'tristeza', 'ira', 'miedo'];
+
+// ── CSV PARSER ────────────────────────────────────────────────────
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  if (lines.length < 2) return null;
+  const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+  return lines.slice(1).map(line => {
+    const vals = line.split(',').map(v => v.trim().replace(/"/g, ''));
+    const row = {};
+    headers.forEach((h, i) => row[h] = vals[i] ?? '');
+    return row;
+  });
+}
+
+function findCol(headers, candidates) {
+  for (const c of candidates) {
+    const found = headers.find(h => h.toLowerCase().includes(c.toLowerCase()));
+    if (found) return found;
+  }
+  return null;
+}
+
+// ── PROCESS DATA ──────────────────────────────────────────────────
+function processDataWithCols(rows, corrCol, rtCol, emCol) {
+  // Filter ONLY experimental trials: must have emocion in our list AND corr value present
+  const trials = rows.filter(r => {
+    const em   = (r[emCol] || '').toLowerCase().trim();
+    const corr = (r[corrCol] || '').trim();
+    return EMOTION_ORDER.includes(em) && corr !== '' && corr !== 'None';
+  });
+
+  if (trials.length === 0) {
+    return { error: 'No se encontraron trials experimentales válidos. Verifica que el archivo corresponde a la fase experimental.' };
+  }
+
+  // Per-emotion stats
+  const stats = {};
+  EMOTION_ORDER.forEach(em => {
+    const emTrials = trials.filter(r => r[emCol].toLowerCase().trim() === em);
+    const correct  = emTrials.filter(r => String(r[corrCol]).trim() === '1');
+    const rts      = correct.map(r => parseFloat(r[rtCol]) * 1000).filter(v => !isNaN(v));
+    const avgRt    = rts.length > 0 ? rts.reduce((a, b) => a + b, 0) / rts.length : null;
+    stats[em] = {
+      total:   emTrials.length,
+      correct: correct.length,
+      acc:     emTrials.length > 0 ? (correct.length / emTrials.length) * 100 : 0,
+      avgRt:   avgRt,
+      rts
+    };
+  });
+
+  // Global
+  const totalCorrect = trials.filter(r => String(r[corrCol]).trim() === '1');
+  const allRts = totalCorrect.map(r => parseFloat(r[rtCol]) * 1000).filter(v => !isNaN(v));
+  const globalAcc = (totalCorrect.length / trials.length) * 100;
+  const globalRt  = allRts.length > 0 ? allRts.reduce((a, b) => a + b, 0) / allRts.length : null;
+
+  return { trials, stats, globalAcc, globalRt, corrCol, rtCol, emCol };
+}
+
+// ── RENDER ────────────────────────────────────────────────────────
+function render(data, filename) {
+  // Meta
+  document.getElementById('participant-meta').textContent =
+    `Archivo: ${filename} · ${data.trials.length} trials`;
+
+  // Summary
+  document.getElementById('global-acc').textContent =
+    data.globalAcc.toFixed(1) + '%';
+  document.getElementById('global-rt').textContent =
+    data.globalRt ? Math.round(data.globalRt) + ' ms' : '—';
+  document.getElementById('total-trials').textContent = data.trials.length;
+
+  // Emotion cards
+  const grid = document.getElementById('emotion-grid');
+  grid.innerHTML = '';
+  EMOTION_ORDER.forEach(em => {
+    const s = data.stats[em];
+    const color = EMOTION_COLORS[em];
+    const card = document.createElement('div');
+    card.className = 'emotion-card';
+    card.innerHTML = `
+      <div class="emotion-card-header" style="background:${color}">
+        <span class="emotion-name">${EMOTION_LABELS[em]}</span>
+        <span class="emotion-key">Tecla ${EMOTION_KEYS[em]}</span>
+      </div>
+      <div class="emotion-card-body">
+        <div class="metric">
+          <div class="metric-label">Precisión</div>
+          <div class="metric-value">${s.acc.toFixed(1)}<span style="font-size:1rem">%</span></div>
+          <div class="metric-sub">${s.correct} / ${s.total} correctos</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">RT promedio</div>
+          <div class="metric-value">${s.avgRt ? Math.round(s.avgRt) : '—'}</div>
+          <div class="metric-sub">${s.avgRt ? 'ms' : 'sin correctos'}</div>
+        </div>
+      </div>`;
+    grid.appendChild(card);
+  });
+
+  // Charts
+  const maxAcc = 100;
+  const maxRt  = Math.max(...EMOTION_ORDER.map(em => data.stats[em].avgRt || 0)) * 1.15;
+
+  const accChart = document.getElementById('acc-chart');
+  const rtChart  = document.getElementById('rt-chart');
+  accChart.innerHTML = '';
+  rtChart.innerHTML  = '';
+
+  EMOTION_ORDER.forEach(em => {
+    const s     = data.stats[em];
+    const color = EMOTION_COLORS[em];
+
+    // Accuracy bar
+    const accRow = document.createElement('div');
+    accRow.className = 'bar-row';
+    accRow.innerHTML = `
+      <span class="bar-label" style="color:${color}">${EMOTION_LABELS[em]}</span>
+      <div class="bar-track">
+        <div class="bar-fill" style="background:${color}" data-width="${(s.acc / maxAcc) * 100}"></div>
+      </div>
+      <span class="bar-val">${s.acc.toFixed(1)}%</span>`;
+    accChart.appendChild(accRow);
+
+    // RT bar
+    const rtRow = document.createElement('div');
+    rtRow.className = 'bar-row';
+    const rtPct = s.avgRt && maxRt > 0 ? (s.avgRt / maxRt) * 100 : 0;
+    rtRow.innerHTML = `
+      <span class="bar-label" style="color:${color}">${EMOTION_LABELS[em]}</span>
+      <div class="bar-track">
+        <div class="bar-fill" style="background:${color}" data-width="${rtPct}"></div>
+      </div>
+      <span class="bar-val">${s.avgRt ? Math.round(s.avgRt) : '—'}</span>`;
+    rtChart.appendChild(rtRow);
+  });
+
+  // Animate bars after render
+  requestAnimationFrame(() => {
+    document.querySelectorAll('.bar-fill').forEach(bar => {
+      bar.style.width = bar.dataset.width + '%';
+    });
+  });
+
+  // Trial table
+  const tbody = document.getElementById('trial-table');
+  tbody.innerHTML = '';
+  data.trials.forEach((row, i) => {
+    const em    = row[data.emCol].toLowerCase().trim();
+    const corr  = String(row[data.corrCol]).trim() === '1';
+    const rt    = parseFloat(row[data.rtCol]) * 1000;
+    const color = EMOTION_COLORS[em] || '#888';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="color:var(--mid)">${i + 1}</td>
+      <td><span class="emotion-badge" style="background:${color}">${EMOTION_LABELS[em] || em}</span></td>
+      <td style="font-family:monospace">${(row[data.corrCol] || '').toUpperCase()}</td>
+      <td>${corr
+        ? '<span class="corr-yes">✓ Correcto</span>'
+        : '<span class="corr-no">✗ Incorrecto</span>'}</td>
+      <td>${!isNaN(rt) ? Math.round(rt) + ' ms' : '—'}</td>`;
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById('upload-section').style.display = 'none';
+  document.getElementById('results').style.display = 'block';
+}
+
+// ── FILE HANDLING ─────────────────────────────────────────────────
+let _cachedRows = null;
+let _cachedFilename = null;
+
+function handleFile(file) {
+  if (!file || !file.name.endsWith('.csv')) {
+    showError('Por favor carga un archivo CSV generado por PsychoPy.');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = e => {
+    const rows = parseCSV(e.target.result);
+    if (!rows || rows.length === 0) { showError('El archivo está vacío o no tiene el formato correcto.'); return; }
+    _cachedRows = rows;
+    _cachedFilename = file.name;
+    document.getElementById('error-msg').style.display = 'none';
+    showColumnSelector(rows);
+  };
+  reader.readAsText(file);
+}
+
+function showColumnSelector(rows) {
+  const keys = Object.keys(rows[0]).filter(k => k.trim() !== '');
+
+  // Auto-detect best candidates for each field
+  const corrGuess = keys.find(h => h === 'key_resp_experimental.corr')
+                 || keys.find(h => h.includes('experimental') && h.includes('corr'))
+                 || keys.find(h => h.includes('.corr')) || '';
+  const rtGuess   = keys.find(h => h === 'key_resp_experimental.rt')
+                 || keys.find(h => h.includes('experimental') && h.includes('.rt'))
+                 || keys.find(h => h.includes('.rt')) || '';
+  const emGuess   = keys.find(h => h === 'emocion')
+                 || keys.find(h => h.includes('emocion') || h.includes('emotion')) || '';
+
+  function populateSelect(selId, guess) {
+    const sel = document.getElementById(selId);
+    sel.innerHTML = '<option value="">— Selecciona una columna —</option>';
+    keys.forEach(k => {
+      const opt = document.createElement('option');
+      opt.value = k;
+      opt.textContent = k;
+      if (k === guess) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  }
+
+  populateSelect('sel-corr', corrGuess);
+  populateSelect('sel-rt',   rtGuess);
+  populateSelect('sel-em',   emGuess);
+
+  document.getElementById('upload-section').style.display = 'none';
+  document.getElementById('col-selector').style.display = 'block';
+}
+
+function confirmColumns() {
+  const corrCol = document.getElementById('sel-corr').value;
+  const rtCol   = document.getElementById('sel-rt').value;
+  const emCol   = document.getElementById('sel-em').value;
+  const errEl   = document.getElementById('col-error');
+
+  if (!corrCol || !rtCol || !emCol) {
+    errEl.textContent = 'Por favor selecciona las tres columnas antes de continuar.';
+    errEl.style.display = 'block';
+    return;
+  }
+  errEl.style.display = 'none';
+
+  const data = processDataWithCols(_cachedRows, corrCol, rtCol, emCol);
+  if (data.error) {
+    errEl.textContent = data.error;
+    errEl.style.display = 'block';
+    return;
+  }
+  document.getElementById('col-selector').style.display = 'none';
+  render(data, _cachedFilename);
+}
+
+function showError(msg) {
+  const el = document.getElementById('error-msg');
+  el.textContent = '⚠ ' + msg;
+  el.style.display = 'block';
+}
+
+function resetApp() {
+  document.getElementById('upload-section').style.display = 'block';
+  document.getElementById('col-selector').style.display = 'none';
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('file-input').value = '';
+  document.getElementById('error-msg').style.display = 'none';
+  _cachedRows = null;
+  _cachedFilename = null;
+}
+
+// ── EVENT LISTENERS ───────────────────────────────────────────────
+document.getElementById('file-input').addEventListener('change', e => {
+  handleFile(e.target.files[0]);
+});
+
+const dz = document.getElementById('drop-zone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+dz.addEventListener('drop', e => {
+  e.preventDefault();
+  dz.classList.remove('drag-over');
+  handleFile(e.dataTransfer.files[0]);
+});
+</script>
+
+</body>
+</html>
